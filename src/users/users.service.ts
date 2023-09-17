@@ -21,11 +21,6 @@ export class UsersService {
     return this.userRepository.findOne({ where: {username}});
   }
   async createUser(dto: CreateUserDTO){
-    const existEmail = await this.findUserByEmail(dto.email);
-    if (existEmail) throw new BadRequestException(AppError.MAIL_EXIST);
-
-    const existUserName = await this.findUserByUserName(dto.username);
-    if (existUserName) throw new BadRequestException(AppError.USER_EXIST);
 
     dto.password = await this.hashPassword(dto.password)
     await this.userRepository.create({
