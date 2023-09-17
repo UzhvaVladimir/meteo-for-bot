@@ -5,10 +5,12 @@ import {AppError} from "../common/error";
 import {UserLoginDto} from "./dto";
 import * as bcrypt from 'bcrypt';
 import {AuthUserResponse} from "./response";
+import {TokenService} from "../token/token.service";
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly userService: UsersService) {}
+    constructor(private readonly userService: UsersService,
+                private readonly tokenService: TokenService) {}
 
     async registerUsers (dto: CreateUserDTO): Promise<CreateUserDTO> {
 
@@ -25,6 +27,7 @@ export class AuthService {
         if (!exitUser) throw new BadRequestException(AppError.USER_NOT_EXIST);
         const validatePassword = await bcrypt.compare(dto.password, exitUser.password);
         if (!validatePassword) throw new BadRequestException(AppError.WRONG_DATA);
-        return exitUser
+        const token = await this.tokenService.generateJwtToken(dto.email)
+        return {...exitUser, token}
     }
 }
