@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
-import { LogsModule } from './logs/logs.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './configurations';
 import { SequelizeModule} from "@nestjs/sequelize";
@@ -40,7 +39,6 @@ import { TokenModule } from './token/token.module';
     }),
     UsersModule,
     RolesModule,
-    LogsModule,
     AuthModule,
     TokenModule],
   controllers: [AppController],
