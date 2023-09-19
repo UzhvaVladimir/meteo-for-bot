@@ -13,26 +13,33 @@ export class AuthService {
                 private readonly tokenService: TokenService) {}
 
     async registerUsers (dto: CreateUserDTO): Promise<CreateUserDTO> {
+        try {
+            const existEmail = await this.userService.findUserByEmail(dto.email);
+            if (existEmail) throw new BadRequestException(AppError.MAIL_EXIST);
 
-        const existEmail = await this.userService.findUserByEmail(dto.email);
-        if (existEmail) throw new BadRequestException(AppError.MAIL_EXIST);
-
-        const existUserName = await this.userService.findUserByUserName(dto.username);
-        if (existUserName) throw new BadRequestException(AppError.USER_EXIST);
-        return this.userService.createUser(dto);
+            const existUserName = await this.userService.findUserByUserName(dto.username);
+            if (existUserName) throw new BadRequestException(AppError.USER_EXIST);
+            return this.userService.createUser(dto);
+        } catch (e) {
+            throw new Error(e)
+        }
     }
 
     async  loginUser(dto: UserLoginDto):Promise<AuthUserResponse> {
-        const exitUser = await this.userService.findUserByEmail(dto.email);
-        if (!exitUser) throw new BadRequestException(AppError.USER_NOT_EXIST);
-        const validatePassword = await bcrypt.compare(dto.password, exitUser.password);
-        if (!validatePassword) throw new BadRequestException(AppError.WRONG_DATA);
-        const userData = {
-            name: exitUser.username,
-            email: exitUser.email
+        try {
+            const exitUser = await this.userService.findUserByEmail(dto.email);
+            if (!exitUser) throw new BadRequestException(AppError.USER_NOT_EXIST);
+            const validatePassword = await bcrypt.compare(dto.password, exitUser.password);
+            if (!validatePassword) throw new BadRequestException(AppError.WRONG_DATA);
+            const userData = {
+                name: exitUser.username,
+                email: exitUser.email
+            }
+            const token = await this.tokenService.generateJwtToken(userData);
+            const user = await this.userService.publicUser(dto.email);
+            return {user, token}
+        } catch (e) {
+            throw new Error(e)
         }
-        const token = await this.tokenService.generateJwtToken(userData);
-        const user = await this.userService.publicUser(dto.email);
-        return {user, token}
     }
 }
