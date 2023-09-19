@@ -3,6 +3,7 @@ import {AuthService} from "./auth.service";
 import {CreateUserDTO} from "../users/dto";
 import {UserLoginDto} from "./dto";
 import {JwtAuthGuard} from "../guards/jwt-guards";
+import {AuthUserResponse} from "./response";
 
 
 @Controller('auth')
@@ -14,7 +15,7 @@ export class AuthController {
     }
 
     @Post('login')
-    login (@Body() dto: UserLoginDto) {
+    login (@Body() dto: UserLoginDto): Promise<AuthUserResponse> {
         return this.authService.loginUser(dto);
     }
     @UseGuards(JwtAuthGuard)
